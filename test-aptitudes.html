@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test de Aptitudes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0f;
+    --surface: #161618;
+    --border: #2a2a2e;
+    --accent: #c8f050;
+    --accent2: #f0c850;
+    --text: #e8e8e6;
+    --muted: #7a7a82;
+    --card: #1c1c1f;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(200,240,80,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,240,80,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+  .header { text-align: center; margin-bottom: 56px; }
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 12px;
+    margin-bottom: 20px;
+  }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  h1 em { font-style: italic; color: var(--accent); }
+  .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .progress-wrap { margin-bottom: 40px; }
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+  }
+  .progress-bar { height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.4s ease; width: 0%; }
+  .section-tag {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-tag::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 32px;
+    margin-bottom: 24px;
+    position: relative;
+    animation: fadeIn 0.35s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .q-number {
+    position: absolute;
+    top: -1px;
+    right: 24px;
+    background: var(--accent);
+    color: #0e0e0f;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 10px;
+    letter-spacing: 0.1em;
+  }
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+  .q-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    margin-top: -16px;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.18s;
+    background: var(--surface);
+    user-select: none;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .option:hover { border-color: var(--accent); background: rgba(200,240,80,0.05); color: var(--accent); }
+  .option.selected { border-color: var(--accent); background: rgba(200,240,80,0.1); color: var(--accent); }
+  .option-key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: 1px solid currentColor;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+  .scale-options { display: flex; gap: 8px; flex-wrap: wrap; }
+  .scale-options .scale-labels {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    letter-spacing: 0.05em;
+  }
+  .scale-btn {
+    flex: 1;
+    min-width: 44px;
+    padding: 12px 4px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    text-align: center;
+    transition: all 0.18s;
+  }
+  .scale-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .scale-btn.selected { border-color: var(--accent); background: rgba(200,240,80,0.12); color: var(--accent); font-weight: 500; }
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; }
+  .btn {
+    padding: 12px 28px;
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn:hover { background: var(--accent); color: #0e0e0f; }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn.primary { background: var(--accent); color: #0e0e0f; }
+  .btn.primary:hover { background: #d8ff60; }
+  #results { display: none; animation: fadeIn 0.5s ease; }
+  .results-header { text-align: center; margin-bottom: 48px; }
+  .aptitude-bar-wrap { margin-bottom: 16px; }
+  .apt-label-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+  .apt-name { color: var(--text); font-weight: 500; }
+  .apt-score { color: var(--accent); }
+  .apt-bar { height: 6px; background: var(--border); border-radius: 0; overflow: hidden; }
+  .apt-fill { height: 100%; background: var(--accent); width: 0%; transition: width 1s ease; }
+  .top-aptitudes { margin: 40px 0; }
+  .aptitude-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .aptitude-card.top-1 { border-color: var(--accent); }
+  .aptitude-card.top-2 { border-color: rgba(200,240,80,0.4); }
+  .aptitude-card.top-3 { border-color: rgba(200,240,80,0.2); }
+  .apt-rank {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    color: var(--accent);
+    opacity: 0.3;
+    line-height: 1;
+    min-width: 40px;
+  }
+  .aptitude-card.top-1 .apt-rank { opacity: 1; }
+  .apt-content h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 6px; }
+  .apt-content p { font-size: 12px; color: var(--muted); line-height: 1.7; }
+  .profile-summary {
+    background: var(--card);
+    border: 1px solid var(--accent);
+    padding: 28px 32px;
+    margin: 40px 0;
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--muted);
+  }
+  .profile-summary strong { color: var(--text); }
+  .restart-wrap { text-align: center; margin-top: 40px; }
+  #intro { animation: fadeIn 0.4s ease; }
+  .intro-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 32px 0 40px;
+  }
+  .intro-feat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 18px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .intro-feat strong { display: block; color: var(--text); margin-bottom: 4px; font-size: 13px; }
+  .intro-start { text-align: center; }
+  @media(max-width:480px) {
+    .intro-features { grid-template-columns: 1fr; }
+    .question-card { padding: 24px 18px; }
+    .scale-btn { min-width: 36px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="badge">Evaluación Psicométrica</div>
+    <h1>Test de <em>Aptitudes</em><br>General</h1>
+    <p class="subtitle">40 preguntas · 8 dimensiones · Análisis personalizado</p>
+  </div>
+
+  <div id="intro">
+    <div class="intro-features">
+      <div class="intro-feat"><strong>🧠 Razonamiento verbal</strong>Comprensión y manejo del lenguaje</div>
+      <div class="intro-feat"><strong>🔢 Aptitud numérica</strong>Cálculo y lógica matemática</div>
+      <div class="intro-feat"><strong>🎨 Razonamiento espacial</strong>Visualización y orientación</div>
+      <div class="intro-feat"><strong>⚡ Razonamiento abstracto</strong>Patrones y pensamiento lógico</div>
+      <div class="intro-feat"><strong>🤝 Aptitud social</strong>Empatía e inteligencia interpersonal</div>
+      <div class="intro-feat"><strong>🎭 Creatividad</strong>Pensamiento divergente y originalidad</div>
+      <div class="intro-feat"><strong>⚙️ Aptitud mecánica</strong>Comprensión de sistemas físicos</div>
+      <div class="intro-feat"><strong>📋 Memoria y atención</strong>Concentración y retención</div>
+    </div>
+    <div class="intro-start">
+      <button class="btn primary" onclick="startTest()">Comenzar el test →</button>
+    </div>
+  </div>
+
+  <div id="test" style="display:none">
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <span id="prog-label">Pregunta 1 de 40</span>
+        <span id="prog-pct">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+    </div>
+    <div id="question-area"></div>
+    <div class="nav">
+      <button class="btn" id="btn-prev" onclick="prevQ()" disabled>← Anterior</button>
+      <button class="btn primary" id="btn-next" onclick="nextQ()">Siguiente →</button>
+    </div>
+  </div>
+
+  <div id="results">
+    <div class="results-header">
+      <div class="badge">Análisis Completado</div>
+      <h1>Tu <em>Perfil</em><br>de Aptitudes</h1>
+    </div>
+    <div id="bars-section"></div>
+    <div class="top-aptitudes" id="top-cards"></div>
+    <div class="profile-summary" id="profile-text"></div>
+    <div class="restart-wrap">
+      <button class="btn" onclick="restartTest()">↺ Repetir el test</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {id:'v1',dim:'V',type:'choice',section:'Razonamiento Verbal',
+   text:'¿Cuál de estas palabras NO pertenece al grupo?',
+   options:['Elocuente','Verboso','Taciturno','Locuaz','Parlanchín'],correct:2},
+  {id:'v2',dim:'V',type:'choice',section:'Razonamiento Verbal',
+   text:'"Libro" es a "biblioteca" como "cuadro" es a:',
+   options:['Pincel','Museo','Artista','Color','Exposición'],correct:1},
+  {id:'v3',dim:'V',type:'choice',section:'Razonamiento Verbal',
+   text:'Elige la opción que completa correctamente: "A pesar de su _____, logró transmitir el mensaje con gran _____ ."',
+   options:['nerviosismo / claridad','alegría / confusión','silencio / ruido','torpeza / torpeza','rapidez / lentitud'],correct:0},
+  {id:'v4',dim:'V',type:'scale',section:'Razonamiento Verbal',
+   text:'¿Con qué frecuencia disfrutas leer y explorar vocabulario nuevo?',
+   sub:'1 = Casi nunca · 5 = Con mucha frecuencia'},
+  {id:'v5',dim:'V',type:'scale',section:'Razonamiento Verbal',
+   text:'Cuando explicas algo a alguien, ¿qué tan fácil te resulta encontrar las palabras exactas?',
+   sub:'1 = Me cuesta mucho · 5 = Me sale de forma natural'},
+  {id:'n1',dim:'N',type:'choice',section:'Aptitud Numérica',
+   text:'Si un producto cuesta $240 y tiene un descuento del 35%, ¿cuánto pagas?',
+   options:['$84','$156','$160','$168','$174'],correct:1},
+  {id:'n2',dim:'N',type:'choice',section:'Aptitud Numérica',
+   text:'¿Cuál es el siguiente número en la serie? 3, 6, 12, 24, ___',
+   options:['36','42','48','54','60'],correct:2},
+  {id:'n3',dim:'N',type:'choice',section:'Aptitud Numérica',
+   text:'Un tren viaja a 90 km/h. ¿Cuántos minutos tarda en recorrer 45 km?',
+   options:['20 min','25 min','30 min','35 min','40 min'],correct:2},
+  {id:'n4',dim:'N',type:'scale',section:'Aptitud Numérica',
+   text:'¿Qué tan cómodo/a te sientes trabajando con números, estadísticas o cálculos?',
+   sub:'1 = Muy incómodo/a · 5 = Muy cómodo/a'},
+  {id:'n5',dim:'N',type:'scale',section:'Aptitud Numérica',
+   text:'Cuando tienes un problema práctico, ¿tiendes a buscar la solución más lógica y cuantificable?',
+   sub:'1 = Rara vez · 5 = Siempre'},
+  {id:'e1',dim:'E',type:'choice',section:'Razonamiento Espacial',
+   text:'Si doblas un cuadrado de papel por la mitad dos veces y cortas una esquina, ¿cuántos agujeros habrá al desplegarlo?',
+   options:['1','2','4','8','Ninguno'],correct:2},
+  {id:'e2',dim:'E',type:'choice',section:'Razonamiento Espacial',
+   text:'¿Cuántas caras tiene un cubo?',
+   options:['4','6','8','10','12'],correct:1},
+  {id:'e3',dim:'E',type:'choice',section:'Razonamiento Espacial',
+   text:'Si miras al norte, giras 90° a la derecha y luego 180° a la izquierda, ¿hacia dónde miras?',
+   options:['Norte','Sur','Este','Oeste','Noreste'],correct:3},
+  {id:'e4',dim:'E',type:'scale',section:'Razonamiento Espacial',
+   text:'¿Con qué facilidad visualizas objetos en 3D o te orientas en espacios nuevos?',
+   sub:'1 = Me cuesta mucho · 5 = Lo hago con gran facilidad'},
+  {id:'e5',dim:'E',type:'scale',section:'Razonamiento Espacial',
+   text:'¿Disfrutas actividades como diseño, arte, arquitectura o manualidades?',
+   sub:'1 = Nada · 5 = Muchísimo'},
+  {id:'a1',dim:'A',type:'choice',section:'Razonamiento Abstracto',
+   text:'Completa el patrón: 2, 3, 5, 8, 13, ___',
+   options:['18','20','21','23','25'],correct:2},
+  {id:'a2',dim:'A',type:'choice',section:'Razonamiento Abstracto',
+   text:'"FUEGO → AGUA" y "LUZ → OSCURIDAD", entonces "ORDEN → ___"',
+   options:['Paz','Caos','Regla','Ley','Claridad'],correct:1},
+  {id:'a3',dim:'A',type:'choice',section:'Razonamiento Abstracto',
+   text:'¿Cuál número continúa la serie? 1, 4, 9, 16, 25, ___',
+   options:['30','34','36','38','40'],correct:2},
+  {id:'a4',dim:'A',type:'scale',section:'Razonamiento Abstracto',
+   text:'¿Te gustan los rompecabezas, acertijos o juegos de lógica?',
+   sub:'1 = No me gustan nada · 5 = Me apasionan'},
+  {id:'a5',dim:'A',type:'scale',section:'Razonamiento Abstracto',
+   text:'¿Con qué facilidad identificas patrones o reglas ocultas en información nueva?',
+   sub:'1 = Me cuesta mucho · 5 = Con gran facilidad'},
+  {id:'s1',dim:'S',type:'choice',section:'Aptitud Social',
+   text:'Tu amigo parece triste pero dice que está bien. ¿Qué haces?',
+   options:['Le creo y no digo nada','Le pregunto directamente qué le pasa','Espero a que él lo cuente','Cambio el tema para animarlo','Le digo que se ve triste y le pregunto si quiere hablar'],correct:4},
+  {id:'s2',dim:'S',type:'scale',section:'Aptitud Social',
+   text:'¿Qué tan fácil te resulta entender cómo se siente alguien por su tono de voz o expresión?',
+   sub:'1 = Me cuesta mucho · 5 = Lo percibo de forma natural'},
+  {id:'s3',dim:'S',type:'scale',section:'Aptitud Social',
+   text:'¿Disfrutas trabajar en equipo, ayudar a otros o resolver conflictos entre personas?',
+   sub:'1 = Prefiero trabajar solo/a · 5 = Me encanta colaborar'},
+  {id:'s4',dim:'S',type:'scale',section:'Aptitud Social',
+   text:'¿Qué tan cómodo/a te sientes hablando en público o liderando grupos?',
+   sub:'1 = Muy incómodo/a · 5 = Me siento muy seguro/a'},
+  {id:'s5',dim:'S',type:'scale',section:'Aptitud Social',
+   text:'Cuando hay un conflicto entre personas, ¿sueles ser quien intenta mediar?',
+   sub:'1 = Nunca · 5 = Casi siempre'},
+  {id:'c1',dim:'C',type:'choice',section:'Creatividad',
+   text:'¿Cuántos usos diferentes se te ocurren para un clip de papel en 10 segundos? Elige el rango más cercano.',
+   options:['1-2 usos','3-5 usos','6-10 usos','Más de 10 usos','Ninguno'],
+   scores:[1,2,4,5,0]},
+  {id:'c2',dim:'C',type:'scale',section:'Creatividad',
+   text:'¿Con qué frecuencia se te ocurren ideas originales o inusuales para resolver problemas?',
+   sub:'1 = Casi nunca · 5 = Constantemente'},
+  {id:'c3',dim:'C',type:'scale',section:'Creatividad',
+   text:'¿Disfrutas actividades creativas como escribir, dibujar, música, fotografía o diseño?',
+   sub:'1 = No me llaman la atención · 5 = Son mi pasión'},
+  {id:'c4',dim:'C',type:'scale',section:'Creatividad',
+   text:'Cuando enfrentas un problema, ¿tiendes a buscar soluciones poco convencionales?',
+   sub:'1 = Prefiero lo conocido · 5 = Siempre busco nuevas formas'},
+  {id:'c5',dim:'C',type:'scale',section:'Creatividad',
+   text:'¿Qué tan abierto/a eres a experimentar con ideas nuevas aunque impliquen riesgo de error?',
+   sub:'1 = Prefiero la seguridad · 5 = Me lanzo con entusiasmo'},
+  {id:'m1',dim:'M',type:'choice',section:'Aptitud Mecánica',
+   text:'Si una polea simple permite levantar 100 kg con 50 kg de fuerza, ¿cuántas poleas usaste?',
+   options:['1 polea','2 poleas','3 poleas','4 poleas','Ninguna'],correct:1},
+  {id:'m2',dim:'M',type:'choice',section:'Aptitud Mecánica',
+   text:'¿Qué herramienta usarías para medir el diámetro interior de un tubo con precisión?',
+   options:['Regla','Cinta métrica','Calibre','Nivel','Transportador'],correct:2},
+  {id:'m3',dim:'M',type:'scale',section:'Aptitud Mecánica',
+   text:'¿Con qué facilidad entiendes cómo funcionan máquinas, motores o aparatos mecánicos?',
+   sub:'1 = No lo entiendo bien · 5 = Lo entiendo con facilidad'},
+  {id:'m4',dim:'M',type:'scale',section:'Aptitud Mecánica',
+   text:'¿Disfrutas arreglar cosas, hacer reparaciones o trabajar con herramientas?',
+   sub:'1 = No me gusta nada · 5 = Me encanta'},
+  {id:'m5',dim:'M',type:'scale',section:'Aptitud Mecánica',
+   text:'¿Qué tan bueno/a eres siguiendo instrucciones técnicas (manuales, montaje, etc.)?',
+   sub:'1 = Me resulta difícil · 5 = Se me da muy bien'},
+  {id:'ma1',dim:'MA',type:'choice',section:'Memoria y Atención',
+   text:'Memoriza: rosa, coche, luna, puerta, silla. ¿Cuál era el 3er elemento?',
+   options:['Rosa','Coche','Luna','Puerta','Silla'],correct:2},
+  {id:'ma2',dim:'MA',type:'choice',section:'Memoria y Atención',
+   text:'¿Cuántas letras "a" hay en esta frase? "La ballena nada en el agua salada cada madrugada."',
+   options:['7','8','9','10','11'],correct:3},
+  {id:'ma3',dim:'MA',type:'scale',section:'Memoria y Atención',
+   text:'¿Qué tan buena es tu memoria para recordar nombres, fechas y datos concretos?',
+   sub:'1 = Bastante mala · 5 = Excelente'},
+  {id:'ma4',dim:'MA',type:'scale',section:'Memoria y Atención',
+   text:'¿Con qué facilidad te concentras en tareas que requieren atención sostenida?',
+   sub:'1 = Me distraigo mucho · 5 = Me concentro sin problema'},
+  {id:'ma5',dim:'MA',type:'scale',section:'Memoria y Atención',
+   text:'¿Qué tan detallista eres? ¿Sueles notar errores o detalles que otros pasan por alto?',
+   sub:'1 = No mucho · 5 = Soy muy detallista'},
+];
+
+const DIM_INFO = {
+  V:  {name:'Razonamiento Verbal',    emoji:'🧠', desc:'Capacidad para comprender y usar el lenguaje con precisión. Las personas con alta aptitud verbal aprenden idiomas con facilidad, se expresan claramente y comprenden textos complejos. Profesiones afines: derecho, periodismo, comunicación, docencia, literatura.'},
+  N:  {name:'Aptitud Numérica',       emoji:'🔢', desc:'Habilidad para trabajar con números, detectar relaciones matemáticas y resolver problemas cuantitativos. Profesiones afines: finanzas, ingeniería, ciencias, estadística, economía, programación.'},
+  E:  {name:'Razonamiento Espacial',  emoji:'🎨', desc:'Capacidad de visualizar objetos en el espacio, rotarlos mentalmente y orientarse. Profesiones afines: arquitectura, diseño, ingeniería civil, cirugía, arte visual, videojuegos, aviación.'},
+  A:  {name:'Razonamiento Abstracto', emoji:'⚡', desc:'Habilidad para identificar patrones, reglas y relaciones lógicas en información nueva y compleja. Es la base del pensamiento científico y analítico. Profesiones afines: investigación, filosofía, programación, ciencias cognitivas.'},
+  S:  {name:'Aptitud Social',         emoji:'🤝', desc:'Inteligencia interpersonal y emocional: empatía, comunicación, liderazgo y manejo de conflictos. Profesiones afines: psicología, recursos humanos, ventas, medicina, trabajo social, política.'},
+  C:  {name:'Creatividad',            emoji:'🎭', desc:'Pensamiento divergente, originalidad y capacidad de generar ideas nuevas y variadas. Profesiones afines: diseño, publicidad, artes, entretenimiento, emprendimiento, innovación tecnológica.'},
+  M:  {name:'Aptitud Mecánica',       emoji:'⚙️', desc:'Comprensión de principios físicos, máquinas y sistemas técnicos. Profesiones afines: mecánica, electricidad, ingeniería industrial, robótica, construcción, tecnología.'},
+  MA: {name:'Memoria y Atención',     emoji:'📋', desc:'Capacidad para retener información, concentrarse en detalles y mantener el foco. Profesiones afines: medicina, derecho, ciencias, programación, contabilidad, investigación.'},
+};
+
+let current = 0;
+let answers = {};
+
+function startTest() {
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('test').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[current];
+  const total = QUESTIONS.length;
+  const pct = Math.round((current / total) * 100);
+  document.getElementById('prog-label').textContent = `Pregunta ${current+1} de ${total}`;
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('btn-prev').disabled = current === 0;
+  document.getElementById('btn-next').textContent = current === total-1 ? 'Ver resultados →' : 'Siguiente →';
+
+  let html = `<div class="section-tag">${q.section}</div>
+  <div class="question-card">
+    <span class="q-number">Q${current+1}</span>
+    <p class="q-text">${q.text}</p>`;
+  if (q.sub) html += `<p class="q-sub">${q.sub}</p>`;
+  if (q.type === 'choice') {
+    html += `<div class="options">`;
+    ['A','B','C','D','E'].forEach((k, i) => {
+      const sel = answers[q.id] === i ? 'selected' : '';
+      html += `<div class="option ${sel}" onclick="selectAnswer(${i})">
+        <span class="option-key">${k}</span> ${q.options[i]}
+      </div>`;
+    });
+    html += `</div>`;
+  } else {
+    html += `<div class="scale-options">
+      <div class="scale-labels"><span>Bajo</span><span>Alto</span></div>`;
+    for (let v=1; v<=5; v++) {
+      const sel = answers[q.id] === v ? 'selected' : '';
+      html += `<button class="scale-btn ${sel}" onclick="selectAnswer(${v})">${v}</button>`;
+    }
+    html += `</div>`;
+  }
+  html += `</div>`;
+  document.getElementById('question-area').innerHTML = html;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function selectAnswer(val) {
+  answers[QUESTIONS[current].id] = val;
+  renderQuestion();
+}
+
+function prevQ() { if (current > 0) { current--; renderQuestion(); } }
+
+function nextQ() {
+  const q = QUESTIONS[current];
+  if (answers[q.id] === undefined) { alert('Por favor responde esta pregunta antes de continuar.'); return; }
+  if (current < QUESTIONS.length - 1) { current++; renderQuestion(); }
+  else showResults();
+}
+
+function computeScores() {
+  const raw = {V:0,N:0,E:0,A:0,S:0,C:0,M:0,MA:0};
+  const cnt = {V:0,N:0,E:0,A:0,S:0,C:0,M:0,MA:0};
+  QUESTIONS.forEach(q => {
+    const ans = answers[q.id];
+    if (ans === undefined) return;
+    let score = 0;
+    if (q.type === 'scale') score = ans;
+    else if (q.scores) score = q.scores[ans];
+    else score = ans === q.correct ? 5 : 1;
+    raw[q.dim] += score;
+    cnt[q.dim]++;
+  });
+  const pct = {};
+  Object.keys(raw).forEach(d => {
+    pct[d] = cnt[d] > 0 ? Math.round((raw[d] / (cnt[d] * 5)) * 100) : 0;
+  });
+  return pct;
+}
+
+function showResults() {
+  document.getElementById('test').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
+  const scores = computeScores();
+  const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
+
+  let barsHtml = `<div class="section-tag">Puntuaciones por área</div>`;
+  sorted.forEach(([dim, val]) => {
+    const info = DIM_INFO[dim];
+    barsHtml += `<div class="aptitude-bar-wrap">
+      <div class="apt-label-row">
+        <span class="apt-name">${info.emoji} ${info.name}</span>
+        <span class="apt-score">${val}%</span>
+      </div>
+      <div class="apt-bar"><div class="apt-fill" data-val="${val}"></div></div>
+    </div>`;
+  });
+  document.getElementById('bars-section').innerHTML = barsHtml;
+  setTimeout(() => {
+    document.querySelectorAll('.apt-fill').forEach(el => { el.style.width = el.dataset.val + '%'; });
+  }, 100);
+
+  const top3 = sorted.slice(0,3);
+  let cardsHtml = `<div class="section-tag">Tus aptitudes dominantes</div>`;
+  top3.forEach(([dim, val], i) => {
+    const info = DIM_INFO[dim];
+    cardsHtml += `<div class="aptitude-card top-${i+1}">
+      <div class="apt-rank">${i+1}</div>
+      <div class="apt-content">
+        <h3>${info.emoji} ${info.name} — ${val}%</h3>
+        <p>${info.desc}</p>
+      </div>
+    </div>`;
+  });
+  document.getElementById('top-cards').innerHTML = cardsHtml;
+
+  const t1 = DIM_INFO[top3[0][0]].name;
+  const t2 = DIM_INFO[top3[1][0]].name;
+  const t3 = DIM_INFO[top3[2][0]].name;
+  const low = sorted[sorted.length-1];
+  const lowName = DIM_INFO[low[0]].name;
+  document.getElementById('profile-text').innerHTML =
+    `Tu perfil muestra una <strong>combinación dominante de ${t1}, ${t2} y ${t3}</strong>. 
+    Este patrón sugiere que te desenvuelves mejor en entornos que combinan estas tres habilidades. 
+    Las personas con este perfil suelen destacar en roles que requieren análisis, comunicación o acción concreta según tus áreas fuertes.
+    <br><br>
+    El área con mayor margen de desarrollo es <strong>${lowName} (${low[1]}%)</strong>. 
+    Esto no significa que seas malo/a en ello, sino que hay oportunidad de crecer — o simplemente que no es donde más disfrutas.
+    <br><br>
+    <strong>Recuerda:</strong> ninguna aptitud es superior a otra. Lo valioso es conocer tu perfil para elegir entornos donde puedas brillar de forma natural.`;
+
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function restartTest() {
+  current = 0; answers = {};
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('intro').style.display = 'block';
+}
+</script>
+</body>
+</html>
